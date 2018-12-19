@@ -21,11 +21,8 @@ int server_handshake(int *to_client) {
   
   //client creates "private" fifo
   //client sends message to server
-  //read(from_client, buf, 1024 * sizeof(char));
-  //printf("connection :) we got this: %s\n", buf);
-
+  
   //server sends response to client
-  //close(*to_client);
 
   read(from_client, buf, 32 * sizeof(char));
   printf("path name: %s\n", buf);  
@@ -34,11 +31,14 @@ int server_handshake(int *to_client) {
   char * message = "received";
   write(tc, message, 16 * sizeof(char));
 
+  while(1){
   //client sends response to server
   read(from_client, buf, 1024 * sizeof(char));
+  strcat(buf, ", but death is inevitable.");
   printf("second message received: %s\n", buf);
 
   free(buf);
+  }
   return from_client;
 }
 
@@ -78,10 +78,15 @@ int client_handshake(int *to_server) {
   printf("response pipe opened\n");
   read(from_server, buf, 1024 * sizeof(char));
   printf("server's message received: %s\n", buf);
-  
+  while(1){
   //client sends response to server
-  char *message = "things are looking groovy";
-  
+  printf("hello i'd like some input\n");
+  char * line = malloc(128 * sizeof(char));
+  char * junk = malloc(sizeof(char));
+  fscanf(stdin, "%[^\n]s", line); //scans line of user input to newline
+  fscanf(stdin, "%c", junk); //holds the newline so input can continue
+  write(ts, line, 32 * sizeof(char));
+  }
   free(buf);
 
   return from_server;
