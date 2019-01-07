@@ -16,6 +16,7 @@ int server_handshake(int *to_client) {
   
   //create wkp and wait for connection
   mkfifo("waluigi", 0644);
+  perror("pls tell me everything's okay");
   printf("pipe created\n");
   
   //client creates "private" fifo
@@ -29,21 +30,27 @@ int server_handshake(int *to_client) {
   printf("path name: %s\n", buf);  
   remove("./waluigi");
   
-  //server connects to client and sends acknowledgement
-  int tc = open(buf, O_WRONLY, 0644);
-  //perror("error opening waaah"); //this is fine
-  *to_client = tc;
-  printf("acknowledgement to write: %s\n", message);
-  write(tc, message, 1024 * sizeof(char)); //this doesn't work
-  perror("error writing acknowledgement");
-  //client recieves server's message, removes private fifo
 
-  //client sends response to server
-  read(from_client, buf, 1024 * sizeof(char));
-  printf("second message recieved: %s\n", buf);  
+  int f = fork();
+  if (f) //parent
+    return from_client;
+  else
+    {
+      //server connects to client and sends acknowledgement
+      int tc = open(buf, O_WRONLY, 0644);
+      *to_client = tc;
+      printf("acknowledgement to write: %s\n", message);
+      write(tc, message, 1024 * sizeof(char));
 
-  free(buf);
-  return from_client;
+      //client recieves server's message, removes private fifo
+
+      //client sends response to server
+      read(from_client, buf, 1024 * sizeof(char));
+      printf("second message recieved: %s\n", buf);  
+
+      free(buf);
+      return from_client;
+    }
 }
 
 int client_handshake(int *to_server) {

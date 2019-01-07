@@ -2,7 +2,7 @@
 
 
 int main() {
-
+  int pid = getpid();
   int to_client;
   int from_client;
   char * buf = malloc(1024 * sizeof(char));
@@ -10,12 +10,17 @@ int main() {
 
   while(1)
     {
-      if (read(from_client, buf, 1024 * sizeof(char)))
+      if (getpid() - pid)
 	{
-	  strcat(buf, ", but death is inevitable.");
-	  write(to_client, buf, 1024 * sizeof(char));
+	  if (read(from_client, buf, 1024 * sizeof(char)))
+	    {
+	      strcat(buf, ", but death is inevitable.");
+	      write(to_client, buf, 1024 * sizeof(char));
+	    }
+	  else
+	    exit(0);
 	}
       else
-	exit(0);
+	from_client = server_handshake( &to_client );
     }
 }
